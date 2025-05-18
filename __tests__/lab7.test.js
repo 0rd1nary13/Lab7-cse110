@@ -21,7 +21,7 @@ describe('Basic user flow for Website', () => {
   // Check to make sure that all 20 <product-item> elements have data in them
   // We use .skip() here because this test has a TODO that has not been completed yet.
   // Make sure to remove the .skip after you finish the TODO. 
-  it.skip('Make sure <product-item> elements are populated', async () => {
+  it('Make sure <product-item> elements are populated', async () => {
     console.log('Checking to make sure <product-item> elements are populated...');
 
     // Start as true, if any don't have data, swap to false
@@ -38,10 +38,13 @@ describe('Basic user flow for Website', () => {
     console.log(`Checking product item 1/${prodItemsData.length}`);
 
     // Make sure the title, price, and image are populated in the JSON
-    firstValue = prodItemsData[0];
-    if (firstValue.title.length == 0) { allArePopulated = false; }
-    if (firstValue.price.length == 0) { allArePopulated = false; }
-    if (firstValue.image.length == 0) { allArePopulated = false; }
+    for (let i = 0; i < prodItemsData.length; i++) {
+      const data = prodItemsData[i];
+      if (!data.title || data.title.length === 0) allArePopulated = false;
+      if (!data.price || data.price.length === 0) allArePopulated = false;
+      if (!data.image || data.image.length === 0) allArePopulated = false;
+    }
+
 
     // Expect allArePopulated to still be true
     expect(allArePopulated).toBe(true);
@@ -191,9 +194,28 @@ describe('Basic user flow for Website', () => {
 
   // Checking to make sure that if you remove all of the items from the cart that the cart
   // number in the top right of the screen is 0
-  it.skip('Checking number of items in cart on screen after removing from cart', async () => {
+  it('Checking number of items in cart on screen after removing from cart', async () => {
     console.log('Checking number of items in cart on screen...');
 
+    const prodItems = await page.$$('product-item');
+
+    for (let item of prodItems) {
+      const shadowRoot = await item.getProperty('shadowRoot');
+      const button = await shadowRoot.$('button');
+      let buttonText = await (await button.getProperty('innerText')).jsonValue();
+      if (buttonText === 'Remove from Cart') {
+        await button.click();
+        await page.waitForFunction(
+          btn => btn.innerText === 'Add to Cart',
+          {},
+          button
+        );
+      }
+    }
+
+    const cartCount = await page.$eval('#cart-count', el => el.innerText);
+    expect(cartCount).toBe("0");
+    
     /**
      **** TODO - STEP 6 **** 
      * Go through and click "Remove from Cart" on every single <product-item>, just like above.
@@ -201,7 +223,7 @@ describe('Basic user flow for Website', () => {
      * Remember to remove the .skip from this it once you are finished writing this test.
      */
 
-  }, 10000);
+  }, 25000);
 
   // Checking to make sure that it remembers us removing everything from the cart
   // after we refresh the page
