@@ -69,9 +69,9 @@ describe('Basic user flow for Website', () => {
 
   // Check to make sure that when you click "Add to Cart" on the first <product-item> that
   // the button swaps to "Remove from Cart"
-  it.skip('Clicking the "Add to Cart" button should change button text', async () => {
-    console.log('Checking the "Add to Cart" button...');
-
+//  it.skip('Clicking the "Add to Cart" button should change button text', async () => {
+//    console.log('Checking the "Add to Cart" button...');
+//  }, 2500);
     /**
      **** TODO - STEP 2 **** 
      * Query a <product-item> element using puppeteer ( checkout page.$() and page.$$() in the docs )
@@ -80,14 +80,24 @@ describe('Basic user flow for Website', () => {
      * Once you have the innerText property, use innerText.jsonValue() to get the text value of it
      * Remember to remove the .skip from this it once you are finished writing this test.
      */
-
+  it('Clicking the "Add to Cart" button should change button text', async () => {
+    console.log('Checking the "Add to Cart" button...');
+    const productItem =await page.$('product-item');
+    const shadowRoot= await productItem.getProperty('shadowRoot');
+    const button = await shadowRoot.$('button');
+    await button.click();
+    const innerTextHandle = await button.getProperty('innerText');
+    const innerText = await innerTextHandle.jsonValue();
+    expect(innerText).toBe("Remove from Cart");
   }, 2500);
+
+
 
   // Check to make sure that after clicking "Add to Cart" on every <product-item> that the Cart
   // number in the top right has been correctly updated
-  it.skip('Checking number of items in cart on screen', async () => {
-    console.log('Checking number of items in cart on screen...');
-
+//  it.skip('Checking number of items in cart on screen', async () => {
+  //  console.log('Checking number of items in cart on screen...');
+//  }, 10000);
     /**
      **** TODO - STEP 3 **** 
      * Query select all of the <product-item> elements, then for every single product element
@@ -95,8 +105,27 @@ describe('Basic user flow for Website', () => {
      * Check to see if the innerText of #cart-count is 20
      * Remember to remove the .skip from this it once you are finished writing this test.
      */
+  it('Checking number of items in cart on screen', async () => {
+    console.log('Checking number of items in cart on screen...');
+    await page.reload();
+    await page.waitForSelector('product-item');
+    const prodItems = await page.$$('product-item');
+    for (let i = 0; i < prodItems.length; i++) {
+      
+      const shadowRoot = await prodItems[i].getProperty('shadowRoot');
+      const button = await shadowRoot.$('button');
+      const textHandle = await button.getProperty('innerText');
+      const buttonText = await textHandle.jsonValue();
+      if (buttonText === 'Add to Cart') {
+        await button.click();
+        await new Promise(r => setTimeout(r, 100));
+      }
+    }
+    const cartCount = await page.$eval('#cart-count', el => el.innerText);
+    expect(cartCount).toBe("20");
+  }, 25000);
 
-  }, 10000);
+
 
   // Check to make sure that after you reload the page it remembers all of the items in your cart
   it.skip('Checking number of items in cart on screen after reload', async () => {
