@@ -22,5 +22,9 @@
 
 
 ## (3) What is the difference between navigation and snapshot mode?
-
+- Navigation: It will evaluate the overall performance for your website. 
+- Snapshot:  It’s mainly used for checking accessibility and layout issues, but it does not analyze performance of your website. 
 ## (4) Name three things we could do to improve the CSE 110 shop site based on the Lighthouse results.
+- Reduce Unused JavaScript and CSS: Load unused JS and CSS takes time
+- Optimize Image Sizes: Can be useful if we can surnk the size of pics.
+- Enable Text Compression: Can short the load time
